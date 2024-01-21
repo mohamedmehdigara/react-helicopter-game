@@ -28,6 +28,7 @@ const App = () => {
 
 // App.js (continued)
 // App.js (continued)
+// App.js (continued)
 useEffect(() => {
   const generateObstacle = () => {
     const newObstacle = {
@@ -38,7 +39,12 @@ useEffect(() => {
   };
 
   const gameLoop = () => {
-    setHelicopterPosition((prevPosition) => ({ ...prevPosition, y: prevPosition.y + 2 }));
+    // Move the helicopter within the game boundaries
+    setHelicopterPosition((prevPosition) => ({
+      x: Math.max(0, Math.min(prevPosition.x + 2, 400 - 40)), // Adjusted boundaries
+      y: prevPosition.y + 2,
+    }));
+
     setObstacles((prevObstacles) => prevObstacles.map((obstacle) => ({ ...obstacle, x: obstacle.x - 2 })));
     setFuel((prevFuel) => Math.max(prevFuel - 0.1, 0)); // Decrease fuel over time
 
@@ -75,7 +81,7 @@ useEffect(() => {
       // Adjust the delay (in milliseconds) to control the game speed
       setTimeout(() => {
         requestAnimationFrame(gameLoop);
-      }, 1600); // Approximately 60 frames per second
+      }, 16000); // Approximately 60 frames per second
     }
   };
 
