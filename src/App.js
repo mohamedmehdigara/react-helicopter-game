@@ -29,63 +29,77 @@ const App = () => {
 // App.js (continued)
 // App.js (continued)
 // App.js (continued)
+const resetGame = () => {
+  alert(`Game Over! Your score: ${score}`);
+  setHelicopterPosition({ x: 180, y: 180 });
+  setObstacles([]);
+  setScore(0);
+  setFuel(100);
+  startGame();
+};
+
+const generateObstacle = () => {
+  const newObstacle = {
+    x: Math.random() * 400,
+    height: Math.random() * 150 + 50,
+    speed: Math.random() * 3 + 1, // Varying obstacle speeds
+  };
+  setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+};
+
+const gameLoop = () => {
+  setHelicopterPosition((prevPosition) => ({
+    x: Math.max(0, Math.min(prevPosition.x + 2, 400 - 40)),
+    y: prevPosition.y + 2,
+  }));
+
+  setObstacles((prevObstacles) =>
+    prevObstacles.map((obstacle) => ({ ...obstacle, x: obstacle.x - obstacle.speed }))
+  );
+
+  setFuel((prevFuel) => Math.max(prevFuel - 0.1, 0));
+
+  if (Math.random() < 0.02) {
+    generateObstacle();
+  }
+
+  setObstacles((prevObstacles) => prevObstacles.filter((obstacle) => obstacle.x + 30 > 0));
+
+  const helicopterBounds = {
+    left: helicopterPosition.x,
+    right: helicopterPosition.x + 40,
+    top: helicopterPosition.y,
+    bottom: helicopterPosition.y + 20,
+  };
+
+  const collided = obstacles.some(
+    (obstacle) =>
+      obstacle.x < helicopterBounds.right &&
+      obstacle.x + 30 > helicopterBounds.left &&
+      obstacle.height > helicopterBounds.top
+  );
+
+  if (collided || fuel === 0) {
+    resetGame();
+  } else {
+    setScore((prevScore) => prevScore + 1);
+
+    setTimeout(() => {
+      requestAnimationFrame(gameLoop);
+    }, 1600);
+  }
+};
+
+const startGame = () => {
+  gameRef.current = requestAnimationFrame(gameLoop);
+};
+
 useEffect(() => {
-  const generateObstacle = () => {
-    const newObstacle = {
-      x: Math.random() * 400,
-      height: Math.random() * 150 + 50,
-    };
-    setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+  startGame();
+
+  return () => {
+    cancelAnimationFrame(gameRef.current);
   };
-
-  const gameLoop = () => {
-    // Move the helicopter within the game boundaries
-    setHelicopterPosition((prevPosition) => ({
-      x: Math.max(0, Math.min(prevPosition.x + 2, 400 - 40)), // Adjusted boundaries
-      y: prevPosition.y + 2,
-    }));
-
-    setObstacles((prevObstacles) => prevObstacles.map((obstacle) => ({ ...obstacle, x: obstacle.x - 2 })));
-    setFuel((prevFuel) => Math.max(prevFuel - 0.1, 0)); // Decrease fuel over time
-
-    if (Math.random() < 0.02) {
-      generateObstacle();
-    }
-
-    setObstacles((prevObstacles) => prevObstacles.filter((obstacle) => obstacle.x + 30 > 0));
-
-    // Check for collisions
-    const helicopterBounds = {
-      left: helicopterPosition.x,
-      right: helicopterPosition.x + 40,
-      top: helicopterPosition.y,
-      bottom: helicopterPosition.y + 20,
-    };
-
-    const collided = obstacles.some(
-      (obstacle) =>
-        obstacle.x < helicopterBounds.right &&
-        obstacle.x + 30 > helicopterBounds.left &&
-        obstacle.height > helicopterBounds.top
-    );
-
-    if (collided || fuel === 0) {
-      alert(`Game Over! Your score: ${score}`);
-      setHelicopterPosition({ x: 180, y: 180 });
-      setObstacles([]);
-      setScore(0);
-      setFuel(100);
-    } else {
-      setScore((prevScore) => prevScore + 1);
-
-      // Adjust the delay (in milliseconds) to control the game speed
-      setTimeout(() => {
-        requestAnimationFrame(gameLoop);
-      }, 16000); // Approximately 60 frames per second
-    }
-  };
-
-  gameLoop(); // Start the game loop
 }, [helicopterPosition, obstacles, score, fuel]);
 
   return (
