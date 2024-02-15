@@ -9,6 +9,7 @@ import ScoreBoard from './components/ScoreBoard';
 import Sky from './components/Sky';
 import Cloud from './components/Cloud';
 import FuelIndicator from './components/FuelIndicator';
+import Mountain from './components/Mountain';
 import styled from 'styled-components';
 
 const GameContainer = styled.div`
@@ -105,6 +106,7 @@ useEffect(() => {
   return (
     <GameContainer ref={gameRef}>
       <Sky />
+      <Mountain/>
       <HelicopterBody x={helicopterPosition.x} y={helicopterPosition.y} />
       <HelicopterTail x={helicopterPosition.x - 5} y={helicopterPosition.y + 15} />
       <HelicopterRotor x={helicopterPosition.x} y={helicopterPosition.y} />
